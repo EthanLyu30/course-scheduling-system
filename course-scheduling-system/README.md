@@ -1,72 +1,97 @@
 # 双向选择排课系统
 
-> 基于学生时间偏好的智能排课平台，支持学生、教师、教务三端协同
+> 基于学生时间偏好的智能排课平台，目前仓库包含“学生子系统（后端 + 前端）”与公共数据库脚本，教师/教务子系统留作后续扩展。
 
 ## 项目简介
 
-本系统是一个支持双向选择的智能排课平台，通过收集学生和教师的时间偏好与课程意愿，由教务系统统一协调生成最优课表。
+本系统收集学生时间偏好与课程意愿，提供课程选择、意愿排序与排课结果查看，并支持反馈申诉。
 
-### 系统架构
+### 目录概览
 
 ```
-├── student-system/     # 学生排课子系统 (端口: 8081/5173)
-├── teacher-system/     # 教师排课子系统 (端口: 8082/5174)  
-├── admin-system/       # 教务协调子系统 (端口: 8083/5175)
-└── database/           # 共享数据库脚本
+├── database/                 # MySQL schema & init data
+└── student-system/
+	├── student-backend/      # Spring Boot 3 (端口 8081)
+	└── student-frontend/     # Vue 3 + Vite (端口 5173)
 ```
 
 ## 技术栈
 
-| 端 | 技术 |
-|---|------|
-| 前端 | Vue 3 + Vite + Element Plus + Pinia |
-| 后端 | Spring Boot 3 + MyBatis-Plus + Knife4j |
-| 数据库 | MySQL 8.0 |
+| 端       | 技术                              |
+|---------|-----------------------------------|
+| 前端    | Vue 3 + Vite + Element Plus + Pinia |
+| 后端    | Spring Boot 3 + MyBatis-Plus + Knife4j |
+| 数据库  | MySQL 8.0 |
 
-## 快速开始
+## 快速开始（Windows / PowerShell）
 
-### 环境要求
+### 0. 环境要求
 
-- JDK 17+
-- Node.js 18+
-- MySQL 8.0+
+- Git、JDK 17+、Maven 3.9+（若无 mvnw 包装器）、Node.js 18+、MySQL 8.0+
 
 ### 1. 克隆项目
 
-```bash
-git clone https://github.com/你的用户名/course-scheduling-system.git
+```powershell
+git clone https://github.com/EthanLyu30/course-scheduling-system.git
 cd course-scheduling-system
 ```
 
 ### 2. 初始化数据库
 
-```bash
-mysql -u root -p < database/schema.sql
-mysql -u root -p < database/init-data.sql
+默认库名 `course_scheduling`，如需修改请同步调整 `student-backend/src/main/resources/application-dev.yml`。
+
+```powershell
+mysql -u root -p -e "source database/schema.sql"
+mysql -u root -p -e "source database/init-data.sql"
 ```
 
-### 3. 启动学生子系统
+### 3. 启动学生子系统后端（8081）
 
-```bash
-# 后端
+```powershell
 cd student-system/student-backend
-./mvnw spring-boot:run
+mvn clean package -DskipTests
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+```
 
-# 前端（新终端）
+关键配置：`application-dev.yml`
+- DB 连接：`spring.datasource.url` / `username` / `password`
+- 端口：`server.port=8081`
+- Swagger/Knife4j：`/doc.html`
+
+### 4. 启动学生子系统前端（5173）
+
+```powershell
 cd student-system/student-frontend
 npm install
-npm run dev
+npm run dev -- --host
 ```
 
-### 4. 访问系统
+前端环境变量：`.env.development`
+- `VITE_APP_BASE_API=http://localhost:8081/api`
 
-- 前端页面: http://localhost:5173
-- 接口文档: http://localhost:8081/doc.html
+### 5. 访问
 
-## 项目文档
+- 前端页面：http://localhost:5173
+- 接口文档：http://localhost:8081/doc.html
 
-- [项目实施指南](./docs/项目实施指南.md)
-- [概要设计文档](./docs/概要设计.md)
+### 6. 生产构建（可选）
+
+```powershell
+# 后端可执行包
+cd student-system/student-backend
+mvn clean package -DskipTests
+# 生成 jar 位于 target/ ，可使用 `java -jar target/*.jar --spring.profiles.active=dev` 运行
+
+# 前端静态资源
+cd ../student-frontend
+npm run build
+# 产物在 dist/ ，可挂到任意静态服务器，或由网关/后端托管
+```
+
+## 其他说明
+
+- 示例登录：前端内置“模拟登录”页面，默认使用 `studentId=1` 写入 localStorage。
+- 当前仓库未包含教师/教务子系统代码，后续可按相同结构补充 `teacher-system/`、`admin-system/`。
 
 ## 作者
 
