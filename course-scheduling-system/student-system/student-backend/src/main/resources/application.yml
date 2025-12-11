@@ -1,0 +1,45 @@
+# 应用配置
+spring:
+  application:
+    name: student-schedule-service
+  profiles:
+    active: dev
+
+# 服务器配置
+server:
+  port: 8081
+  servlet:
+    context-path: /api
+
+# MyBatis-Plus 配置
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.schedule.student.entity
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+
+# Knife4j 接口文档配置
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+# SpringDoc 配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: '学生排课子系统'
+      paths-to-match: '/**'
+      packages-to-scan: com.schedule.student.controller

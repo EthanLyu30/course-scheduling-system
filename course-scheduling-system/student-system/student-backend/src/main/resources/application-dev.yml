@@ -1,0 +1,13 @@
+# 开发环境配置
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/course_scheduling?useSSL=false&serverTimezone=Asia/Shanghai&characterEncoding=utf8&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456  # 请修改为你的MySQL密码
+
+# 开发环境日志级别
+logging:
+  level:
+    com.schedule.student: debug
+    com.baomidou.mybatisplus: debug

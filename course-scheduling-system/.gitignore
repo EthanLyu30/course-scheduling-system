@@ -1,0 +1,47 @@
+# ===== Java =====
+*.class
+*.jar
+*.war
+*.ear
+*.log
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# ===== Maven =====
+.mvn/
+mvnw
+mvnw.cmd
+
+# ===== IDE =====
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+*.swp
+*.swo
+
+# ===== Node =====
+node_modules/
+dist/
+*.local
+
+# ===== OS =====
+.DS_Store
+Thumbs.db
+
+# ===== Logs =====
+logs/
+*.log
+npm-debug.log*
+
+# ===== Environment =====
+.env.local
+.env.*.local
+*.env
+
+# ===== Build =====
+build/
+out/
