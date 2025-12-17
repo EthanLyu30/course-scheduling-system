@@ -8,6 +8,7 @@ import com.schedule.teacher.vo.Result;
 import com.schedule.teacher.vo.ScheduleVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,8 +36,12 @@ public class ScheduleServiceImpl implements ScheduleService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Result<Void> confirm(String planId) {
-        // TODO: align with student subsystem and add transactional confirm
+        // 占位：事务确认，可补充状态检查与教务协同 MQ 通知
+        assignmentMapper.update(null, new LambdaQueryWrapper<CourseAssignment>()
+                .eq(CourseAssignment::getPlanId, planId)
+                .set(CourseAssignment::getStatus, "CONFIRMED"));
         return Result.ok();
     }
 }
