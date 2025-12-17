@@ -1,6 +1,7 @@
 package com.schedule.teacher.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.schedule.teacher.entity.CourseAssignment;
 import com.schedule.teacher.mapper.CourseAssignmentMapper;
 import com.schedule.teacher.service.ScheduleService;
@@ -42,9 +43,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Transactional(rollbackFor = Exception.class)
     public Result<Void> confirm(String planId) {
         // 占位：事务确认，可补充状态检查与教务协同 MQ 通知
-        assignmentMapper.update(null, new LambdaQueryWrapper<CourseAssignment>()
-                .eq(CourseAssignment::getPlanId, planId)
-                .set(CourseAssignment::getStatus, "CONFIRMED"));
+        assignmentMapper.update(null, new LambdaUpdateWrapper<CourseAssignment>()
+            .eq(CourseAssignment::getPlanId, planId)
+            .set(CourseAssignment::getStatus, "CONFIRMED"));
         eventPublisher.publishScheduleConfirmed(new ScheduleConfirmedEvent(planId, ""));
         return Result.ok();
     }

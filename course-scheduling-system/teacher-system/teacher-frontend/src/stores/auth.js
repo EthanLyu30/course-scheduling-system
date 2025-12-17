@@ -12,7 +12,11 @@ export const useAuthStore = defineStore('auth', {
       const res = await login(payload)
       const data = res.data || res
       this.token = data.token || 'mock-token'
-      this.profile = { id: data.teacherId || payload.teacherId, name: data.name || '教师' }
+      this.profile = {
+        id: data.teacherId || data.id,
+        teacherNo: data.teacherNo || payload.teacherNo,
+        name: data.name || '教师'
+      }
       localStorage.setItem('teacherToken', this.token)
       localStorage.setItem('teacherId', this.profile.id)
       localStorage.setItem('teacherProfile', JSON.stringify(this.profile))

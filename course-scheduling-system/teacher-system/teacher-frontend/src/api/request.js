@@ -11,7 +11,7 @@ instance.interceptors.request.use(config => {
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`
   }
-  const teacherId = localStorage.getItem('teacherId') || 't-1'
+  const teacherId = localStorage.getItem('teacherId') || ''
   config.headers['X-Teacher-Id'] = teacherId
   return config
 })

@@ -4,7 +4,7 @@
       <div class="title">教师排课登录</div>
       <el-form :model="form" label-position="top">
         <el-form-item label="教师工号">
-          <el-input v-model="form.teacherId" placeholder="如 T1001" />
+          <el-input v-model="form.teacherNo" placeholder="如 T1001" />
         </el-form-item>
         <el-form-item label="密码">
           <el-input v-model="form.password" type="password" placeholder="占位密码" />
@@ -20,7 +20,7 @@ import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores'
 
-const form = reactive({ teacherId: 't-1', password: '123456' })
+const form = reactive({ teacherNo: 'T1001', password: '123456' })
 const loading = ref(false)
 const router = useRouter()
 const auth = useAuthStore()
