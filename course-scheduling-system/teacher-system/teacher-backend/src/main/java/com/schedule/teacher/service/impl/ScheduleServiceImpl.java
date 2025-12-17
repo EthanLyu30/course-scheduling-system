@@ -6,6 +6,8 @@ import com.schedule.teacher.mapper.CourseAssignmentMapper;
 import com.schedule.teacher.service.ScheduleService;
 import com.schedule.teacher.vo.Result;
 import com.schedule.teacher.vo.ScheduleVO;
+import com.schedule.teacher.event.DomainEventPublisher;
+import com.schedule.teacher.event.ScheduleConfirmedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class ScheduleServiceImpl implements ScheduleService {
 
     private final CourseAssignmentMapper assignmentMapper;
+    private final DomainEventPublisher eventPublisher;
 
     @Override
     public Result<List<ScheduleVO>> getSchedule(String teacherId) {
@@ -42,6 +45,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         assignmentMapper.update(null, new LambdaQueryWrapper<CourseAssignment>()
                 .eq(CourseAssignment::getPlanId, planId)
                 .set(CourseAssignment::getStatus, "CONFIRMED"));
+        eventPublisher.publishScheduleConfirmed(new ScheduleConfirmedEvent(planId, ""));
         return Result.ok();
     }
 }

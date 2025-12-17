@@ -6,6 +6,8 @@ import com.schedule.teacher.entity.Preference;
 import com.schedule.teacher.mapper.PreferenceMapper;
 import com.schedule.teacher.service.PreferenceService;
 import com.schedule.teacher.vo.Result;
+import com.schedule.teacher.event.DomainEventPublisher;
+import com.schedule.teacher.event.PreferenceChangedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class PreferenceServiceImpl implements PreferenceService {
 
     private final PreferenceMapper preferenceMapper;
+    private final DomainEventPublisher eventPublisher;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -34,10 +37,12 @@ public class PreferenceServiceImpl implements PreferenceService {
             pref.setScore(dto.getScore());
             pref.setVersion(1);
             preferenceMapper.insert(pref);
+            eventPublisher.publishPreferenceChanged(new PreferenceChangedEvent(dto.getTeacherId(), dto.getCourseId(), dto.getTimeSlotId(), 1));
         } else {
             existing.setScore(dto.getScore());
             existing.setVersion((existing.getVersion() == null ? 1 : existing.getVersion() + 1));
             preferenceMapper.updateById(existing);
+            eventPublisher.publishPreferenceChanged(new PreferenceChangedEvent(dto.getTeacherId(), dto.getCourseId(), dto.getTimeSlotId(), existing.getVersion()));
         }
         return Result.ok();
     }

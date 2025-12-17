@@ -221,6 +221,101 @@ CREATE TABLE IF NOT EXISTS teacher_wish (
     FOREIGN KEY (course_id) REFERENCES course(id)
 ) COMMENT '教师授课意愿表';
 
+-- 通用时间片表（供算法与两端复用）
+CREATE TABLE IF NOT EXISTS time_slot (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '时间片ID',
+    day_of_week TINYINT NOT NULL COMMENT '星期:1-7',
+    slot_number TINYINT NOT NULL COMMENT '节次编号（自定义，如1~6）',
+    duration_minutes INT DEFAULT 90 COMMENT '时长(分钟)',
+    start_time TIME NULL COMMENT '可选：显示用开始时间',
+    end_time TIME NULL COMMENT '可选：显示用结束时间',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY uk_day_slot (day_of_week, slot_number)
+) COMMENT '标准时间片表';
+
+-- 通用偏好表（多态：学生/教师）
+CREATE TABLE IF NOT EXISTS preference (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '主键ID',
+    entity_type VARCHAR(20) NOT NULL COMMENT 'STUDENT/TEACHER',
+    entity_id VARCHAR(64) NOT NULL COMMENT '学生或教师ID/编号',
+    course_id BIGINT NOT NULL COMMENT '课程ID',
+    time_slot_id BIGINT NOT NULL COMMENT 'time_slot.id',
+    score TINYINT NOT NULL COMMENT '偏好评分 1~5',
+    version INT DEFAULT 1 COMMENT '版本号',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    UNIQUE KEY uk_entity_course_slot (entity_type, entity_id, course_id, time_slot_id),
+    INDEX idx_entity (entity_type, entity_id),
+    INDEX idx_course_slot (course_id, time_slot_id),
+    FOREIGN KEY (course_id) REFERENCES course(id),
+    FOREIGN KEY (time_slot_id) REFERENCES time_slot(id)
+) COMMENT '通用偏好表（师生统一）';
+
+-- 约束规则表
+CREATE TABLE IF NOT EXISTS constraint_rule (
+    id VARCHAR(64) PRIMARY KEY COMMENT '规则ID',
+    name VARCHAR(100) NOT NULL COMMENT '名称',
+    rule_type VARCHAR(50) NOT NULL COMMENT '类型',
+    description VARCHAR(255) COMMENT '描述',
+    parameters JSON COMMENT '参数(JSON)',
+    is_active TINYINT DEFAULT 1 COMMENT '是否启用',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_active (is_active)
+) COMMENT '约束规则库';
+
+-- 排课方案
+CREATE TABLE IF NOT EXISTS scheduling_plan (
+    id VARCHAR(64) PRIMARY KEY COMMENT '方案ID',
+    name VARCHAR(100) NOT NULL COMMENT '方案名称',
+    strategy VARCHAR(50) COMMENT '策略',
+    status VARCHAR(30) DEFAULT 'DRAFT' COMMENT '状态 DRAFT/OPTIMIZING/FINALIZED',
+    satisfaction_score DECIMAL(5,2) DEFAULT 0 COMMENT '满意度',
+    conflict_count INT DEFAULT 0 COMMENT '冲突数',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    finalized_at DATETIME NULL,
+    INDEX idx_status (status)
+) COMMENT '排课方案表';
+
+-- 课程安排
+CREATE TABLE IF NOT EXISTS course_assignment (
+    id VARCHAR(64) PRIMARY KEY COMMENT '安排ID',
+    plan_id VARCHAR(64) NOT NULL COMMENT '方案ID',
+    course_id BIGINT NOT NULL,
+    teacher_id VARCHAR(64) NOT NULL,
+    room_id VARCHAR(64) COMMENT '教室ID(可对接 classroom.room_code)',
+    time_slot_id BIGINT NOT NULL,
+    status VARCHAR(30) DEFAULT 'PENDING' COMMENT '状态 PENDING/CONFIRMED/CONFLICT',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_plan (plan_id),
+    INDEX idx_teacher (teacher_id),
+    INDEX idx_course (course_id),
+    INDEX idx_slot (time_slot_id),
+    FOREIGN KEY (plan_id) REFERENCES scheduling_plan(id),
+    FOREIGN KEY (course_id) REFERENCES course(id),
+    FOREIGN KEY (time_slot_id) REFERENCES time_slot(id)
+) COMMENT '课程安排表';
+
+-- 冲突记录
+CREATE TABLE IF NOT EXISTS conflict_record (
+    id VARCHAR(64) PRIMARY KEY COMMENT '冲突ID',
+    plan_id VARCHAR(64) NOT NULL,
+    assignment_id VARCHAR(64) NOT NULL,
+    conflict_type VARCHAR(50) NOT NULL,
+    severity_level TINYINT DEFAULT 1,
+    root_cause VARCHAR(255),
+    resolution_status VARCHAR(30) DEFAULT 'PENDING',
+    resolved_at DATETIME NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_plan (plan_id),
+    INDEX idx_assignment (assignment_id),
+    INDEX idx_type (conflict_type),
+    FOREIGN KEY (plan_id) REFERENCES scheduling_plan(id),
+    FOREIGN KEY (assignment_id) REFERENCES course_assignment(id)
+) COMMENT '冲突记录';
+
 -- ============================================
 -- 4. 教务协调表
 -- ============================================

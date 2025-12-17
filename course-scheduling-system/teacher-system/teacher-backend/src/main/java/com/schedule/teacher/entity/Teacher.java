@@ -9,7 +9,10 @@ import lombok.Data;
 public class Teacher {
     @TableId
     private String id;
+    private String teacherNo;
     private String name;
     private String department;
     private Integer maxLoad;
+    private String password;
+    private Integer status;
 }

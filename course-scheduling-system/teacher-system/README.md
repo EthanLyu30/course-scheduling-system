@@ -18,6 +18,14 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 - 端口: `server.port=8082`
 - 文档: `/doc.html`
 
+前端：
+```powershell
+cd teacher-system/teacher-frontend
+npm install
+npm run dev -- --host
+```
+默认调用 `/api/auth/login` 完成简易登录（返回 token/teacherId），其余接口复用 `/api/teacher/...` 路径。
+
 ## 目录
 - config: CORS、MyBatis-Plus、Knife4j
 - controller: 偏好、课表、约束、冲突占位
@@ -31,3 +39,4 @@ mvn spring-boot:run -Dspring-boot.run.profiles=dev
 - 课表确认的事务逻辑与教务系统联动
 - 冲突处理与建议、与教务协调子系统的消息交互
 - 单元/集成测试
+ - 登录鉴权：当前为简单口令校验+伪 token，生产需接入统一认证或 JWT

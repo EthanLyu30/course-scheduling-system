@@ -9,10 +9,13 @@
 ### 目录概览
 
 ```
-├── database/                 # MySQL schema & init data
-└── student-system/
-	├── student-backend/      # Spring Boot 3 (端口 8081)
-	└── student-frontend/     # Vue 3 + Vite (端口 5173)
+├── database/                 # MySQL schema & init data（含新增时间片/偏好/方案/冲突表及索引）
+├── student-system/
+│   ├── student-backend/      # Spring Boot 3 (端口 8081)
+│   └── student-frontend/     # Vue 3 + Vite (端口 5173)
+└── teacher-system/
+	├── teacher-backend/      # Spring Boot 3 (端口 8082)
+	└── teacher-frontend/     # Vue 3 + Vite (端口 5174)
 ```
 
 ## 技术栈
@@ -74,7 +77,27 @@ npm run dev -- --host
 - 前端页面：http://localhost:5173
 - 接口文档：http://localhost:8081/doc.html
 
-### 6. 生产构建（可选）
+### 6. 启动教师子系统后端（8082）
+
+```powershell
+cd teacher-system/teacher-backend
+mvn clean package -DskipTests
+mvn spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+新增表与索引：time_slot、preference（多态偏好，含唯一约束）、constraint_rule、scheduling_plan、course_assignment、conflict_record。
+
+### 7. 启动教师子系统前端（5174）
+
+```powershell
+cd teacher-system/teacher-frontend
+npm install
+npm run dev -- --host
+```
+
+教师端登录：调用 `/api/auth/login`（简单口令校验，返回 token / teacherId）。前端默认以工号+密码登录，token 写入 localStorage。
+
+### 8. 生产构建（可选）
 
 ```powershell
 # 后端可执行包
