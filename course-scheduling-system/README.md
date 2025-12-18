@@ -53,7 +53,7 @@ mysql -u root -p -e "source database/init-data.sql"
 ```powershell
 cd student-system/student-backend
 mvn clean package -DskipTests
-mvn spring-boot:run -Dspring-boot.run.profiles=dev
+mvn --% spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 关键配置：`application-dev.yml`
@@ -82,7 +82,7 @@ npm run dev -- --host
 ```powershell
 cd teacher-system/teacher-backend
 mvn clean package -DskipTests
-mvn spring-boot:run -Dspring-boot.run.profiles=dev
+mvn --% spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 
 新增表与索引：time_slot、preference（多态偏好，含唯一约束）、constraint_rule、scheduling_plan、course_assignment、conflict_record。

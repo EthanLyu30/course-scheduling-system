@@ -13,6 +13,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +29,59 @@ import java.util.Map;
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
+
+    @Operation(summary = "获取个人课表（RESTful路径）", description = "获取学生当前学期的课表")
+    @GetMapping("/{studentId}")
+    public Result<List<Schedule>> getStudentScheduleByPath(
+            @Parameter(description = "学生ID") @PathVariable Long studentId,
+            @Parameter(description = "学期") @RequestParam(defaultValue = "2024-2025-2") String semester) {
+        List<Schedule> schedules = scheduleService.getStudentSchedule(studentId, semester);
+        return Result.success(schedules);
+    }
+
+    @Operation(summary = "获取课表视图（周视图）", description = "按 星期-节次 返回课表，供前端绘制网格")
+    @GetMapping("/{studentId}/table")
+    public Result<Map<String, Object>> getStudentScheduleTable(
+            @Parameter(description = "学生ID") @PathVariable Long studentId,
+            @Parameter(description = "学期") @RequestParam(defaultValue = "2024-2025-2") String semester) {
+        List<Schedule> schedules = scheduleService.getStudentSchedule(studentId, semester);
+
+        Map<String, Object> weekly = new HashMap<>();
+        for (Schedule schedule : schedules) {
+            int slot = resolveSlot(schedule.getStartTime());
+            if (slot == 0) {
+                continue;
+            }
+
+            Map<String, Object> cell = new HashMap<>();
+            cell.put("courseName", schedule.getCourseName());
+            cell.put("teacherName", schedule.getTeacherName());
+            cell.put("classroomName", schedule.getClassroomName());
+            cell.put("credits", schedule.getCredits());
+
+            String key = schedule.getDayOfWeek() + "-" + slot;
+            weekly.put(key, cell);
+        }
+
+        return Result.success(weekly);
+    }
+
+    @Operation(summary = "获取排课状态", description = "返回排课状态、课程数、满足率等摘要信息")
+    @GetMapping("/{studentId}/status")
+    public Result<Map<String, Object>> getScheduleStatus(
+            @Parameter(description = "学生ID") @PathVariable Long studentId,
+            @Parameter(description = "学期") @RequestParam(defaultValue = "2024-2025-2") String semester) {
+        List<Schedule> schedules = scheduleService.getStudentSchedule(studentId, semester);
+        Double rate = scheduleService.getSatisfactionRate(studentId, semester);
+
+        Map<String, Object> status = new HashMap<>();
+        status.put("statusText", schedules.isEmpty() ? "待排课" : "已发布");
+        status.put("courseCount", schedules.size());
+        status.put("satisfactionRate", rate);
+        status.put("generatedAt", LocalDateTime.now());
+
+        return Result.success(status);
+    }
 
     @Operation(summary = "获取个人课表", description = "获取学生当前学期的课表")
     @GetMapping
@@ -83,5 +138,34 @@ public class ScheduleController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .contentType(mediaType)
                 .body(data);
+    }
+
+    /**
+     * 根据开始时间推导节次编号
+     */
+    private int resolveSlot(LocalTime startTime) {
+        if (startTime == null) {
+            return 0;
+        }
+
+        if (startTime.equals(LocalTime.of(8, 0))) {
+            return 1;
+        }
+        if (startTime.equals(LocalTime.of(9, 50))) {
+            return 2;
+        }
+        if (startTime.equals(LocalTime.of(13, 30))) {
+            return 3;
+        }
+        if (startTime.equals(LocalTime.of(15, 20))) {
+            return 4;
+        }
+        if (startTime.equals(LocalTime.of(18, 30))) {
+            return 5;
+        }
+        if (startTime.equals(LocalTime.of(20, 10))) {
+            return 6;
+        }
+        return 0;
     }
 }

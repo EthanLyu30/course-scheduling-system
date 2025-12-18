@@ -71,8 +71,15 @@ public class PreferenceServiceImpl implements PreferenceService {
 
         // 保存时间段
         for (TimeSlot slot : timeSlots) {
+            if (slot == null) {
+                continue;
+            }
             slot.setId(null);
             slot.setPreferenceId(preference.getId());
+            // 若缺少时间，根据节次填充默认时段（可按学校作息调整）
+            if (slot.getStartTime() == null || slot.getEndTime() == null) {
+                fillTimeBySlotNumber(slot);
+            }
             timeSlotMapper.insert(slot);
         }
 
@@ -98,15 +105,23 @@ public class PreferenceServiceImpl implements PreferenceService {
     public List<String> detectConflicts(List<TimeSlot> timeSlots) {
         List<String> conflicts = new ArrayList<>();
         
+        if (timeSlots == null || timeSlots.isEmpty()) {
+            return conflicts;
+        }
+
         // 检测同一时间段是否有矛盾的偏好设置
         for (int i = 0; i < timeSlots.size(); i++) {
             for (int j = i + 1; j < timeSlots.size(); j++) {
                 TimeSlot slot1 = timeSlots.get(i);
                 TimeSlot slot2 = timeSlots.get(j);
+
+                if (slot1 == null || slot2 == null) {
+                    continue;
+                }
                 
-                if (slot1.getDayOfWeek().equals(slot2.getDayOfWeek())) {
+                if (slot1.getDayOfWeek() != null && slot1.getDayOfWeek().equals(slot2.getDayOfWeek())) {
                     // 检查时间是否重叠
-                    if (isTimeOverlap(slot1, slot2)) {
+                    if (hasValidTime(slot1) && hasValidTime(slot2) && isTimeOverlap(slot1, slot2)) {
                         conflicts.add(String.format("周%d %s-%s 与 %s-%s 时间段重叠",
                             slot1.getDayOfWeek(),
                             slot1.getStartTime(), slot1.getEndTime(),
@@ -120,7 +135,52 @@ public class PreferenceServiceImpl implements PreferenceService {
     }
 
     private boolean isTimeOverlap(TimeSlot slot1, TimeSlot slot2) {
+        if (!hasValidTime(slot1) || !hasValidTime(slot2)) {
+            return false;
+        }
         return slot1.getStartTime().isBefore(slot2.getEndTime()) 
             && slot2.getStartTime().isBefore(slot1.getEndTime());
+    }
+
+    private boolean hasValidTime(TimeSlot slot) {
+        return slot != null && slot.getStartTime() != null && slot.getEndTime() != null;
+    }
+
+    /**
+     * 根据节次补全时间（可按校历调整）
+     */
+    private void fillTimeBySlotNumber(TimeSlot slot) {
+        if (slot == null || slot.getSlotNumber() == null) {
+            return;
+        }
+        switch (slot.getSlotNumber()) {
+            case 1 -> {
+                slot.setStartTime(java.time.LocalTime.of(8, 0));
+                slot.setEndTime(java.time.LocalTime.of(9, 35));
+            }
+            case 2 -> {
+                slot.setStartTime(java.time.LocalTime.of(9, 50));
+                slot.setEndTime(java.time.LocalTime.of(12, 5));
+            }
+            case 3 -> {
+                slot.setStartTime(java.time.LocalTime.of(13, 30));
+                slot.setEndTime(java.time.LocalTime.of(15, 5));
+            }
+            case 4 -> {
+                slot.setStartTime(java.time.LocalTime.of(15, 20));
+                slot.setEndTime(java.time.LocalTime.of(17, 0));
+            }
+            case 5 -> {
+                slot.setStartTime(java.time.LocalTime.of(18, 30));
+                slot.setEndTime(java.time.LocalTime.of(20, 5));
+            }
+            case 6 -> {
+                slot.setStartTime(java.time.LocalTime.of(20, 10));
+                slot.setEndTime(java.time.LocalTime.of(21, 40));
+            }
+            default -> {
+                // 留空，不覆盖
+            }
+        }
     }
 }

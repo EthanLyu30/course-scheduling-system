@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getPreference, getTimeSlots, savePreference, saveTimeSlots } from '@/api/preference'
+import { getPreference, savePreference } from '@/api/preference'
 
 export const usePreferenceStore = defineStore('preference', {
   state: () => ({
@@ -33,21 +33,11 @@ export const usePreferenceStore = defineStore('preference', {
       this.loading = true
       try {
         const res = await getPreference(studentId)
-        this.preference = res.data
+        const payload = res.data || {}
+        this.preference = payload.preference || null
+        this.timeSlots = payload.timeSlots || []
       } catch (error) {
         console.error('获取偏好失败:', error)
-      } finally {
-        this.loading = false
-      }
-    },
-    
-    async fetchTimeSlots(studentId) {
-      this.loading = true
-      try {
-        const res = await getTimeSlots(studentId)
-        this.timeSlots = res.data || []
-      } catch (error) {
-        console.error('获取时间段失败:', error)
       } finally {
         this.loading = false
       }
@@ -66,6 +56,8 @@ export const usePreferenceStore = defineStore('preference', {
           dayOfWeek,
           slotNumber,
           preferenceLevel: level,
+          startTime: null,
+          endTime: null,
           _modified: true
         })
       }
@@ -74,12 +66,12 @@ export const usePreferenceStore = defineStore('preference', {
     async saveAll(studentId) {
       this.loading = true
       try {
-        const modifiedSlots = this.timeSlots.filter(s => s._modified)
-        if (modifiedSlots.length > 0) {
-          await saveTimeSlots(studentId, modifiedSlots)
-          // 清除修改标记
-          modifiedSlots.forEach(s => delete s._modified)
+        const dto = {
+          semester: this.preference?.semester || '2024-2025-2',
+          timeSlots: this.timeSlots
         }
+        await savePreference(studentId, dto)
+        this.timeSlots.forEach(s => delete s._modified)
         return true
       } catch (error) {
         console.error('保存失败:', error)

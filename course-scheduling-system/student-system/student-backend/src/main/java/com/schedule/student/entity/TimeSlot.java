@@ -31,6 +31,9 @@ public class TimeSlot {
     /** 偏好等级: 1-不可用, 2-不喜欢, 3-一般, 4-强烈喜欢 */
     private Integer preferenceLevel;
 
+    /** 节次编号（前端可用来映射时间） */
+    private Integer slotNumber;
+
     /** 是否临时例外 */
     private Integer isException;
 

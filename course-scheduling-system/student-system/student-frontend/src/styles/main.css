@@ -9,30 +9,35 @@ body {
   font-family: 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: radial-gradient(circle at 20% 20%, #eef2ff 0, transparent 25%),
+              radial-gradient(circle at 80% 0%, #e0f7ff 0, transparent 22%),
+              linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%);
+  min-height: 100vh;
 }
 
 /* 卡片样式 */
 .page-card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+  border: 1px solid #e5e7eb;
 }
 
 .page-card .card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #ebeef5;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eef2ff;
 }
 
 .page-card .card-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: #303133;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 /* 时间网格样式 */

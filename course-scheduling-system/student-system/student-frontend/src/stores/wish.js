@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getWishList, addWish, deleteWish, batchSaveWishes } from '@/api/wish'
+import { getWishList, addWish, deleteWish, updateWish } from '@/api/wish'
 
 export const useWishStore = defineStore('wish', {
   state: () => ({
@@ -38,8 +38,10 @@ export const useWishStore = defineStore('wish', {
     async addNewWish(wishData) {
       this.loading = true
       try {
-        const res = await addWish(wishData)
-        this.wishes.push(res.data)
+        const { studentId, ...dto } = wishData
+        const res = await addWish(studentId, dto)
+        const saved = res.data || {}
+        this.wishes.push({ ...dto, ...saved })
         return true
       } catch (error) {
         console.error('添加意愿失败:', error)
@@ -76,7 +78,13 @@ export const useWishStore = defineStore('wish', {
     async saveWishOrder(studentId) {
       this.loading = true
       try {
-        await batchSaveWishes(studentId, this.wishes)
+        const tasks = this.wishes.map(w => updateWish(w.id, {
+          courseId: w.courseId,
+          semester: w.semester || '2024-2025-2',
+          priority: w.priority,
+          reason: w.reason
+        }))
+        await Promise.all(tasks)
         return true
       } catch (error) {
         console.error('保存排序失败:', error)

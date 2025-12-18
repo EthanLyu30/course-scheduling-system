@@ -17,8 +17,8 @@
       >
         <div class="wish-rank">{{ index + 1 }}</div>
         <div class="wish-content">
-          <div class="wish-course">{{ wish.courseName }}</div>
-          <div class="wish-teacher">教师：{{ wish.teacherName || '待定' }} | 优先级：{{ wish.priority }}</div>
+          <div class="wish-course">{{ wish.course?.name || wish.courseName || '课程' }}</div>
+          <div class="wish-teacher">教师：{{ wish.course?.teacherName || wish.teacherName || '待定' }} | 优先级：{{ wish.priority }}</div>
         </div>
         <div style="display: flex; gap: 8px;">
           <el-button circle size="small" icon="ArrowUp" @click="moveUp(index)" :disabled="index === 0" />

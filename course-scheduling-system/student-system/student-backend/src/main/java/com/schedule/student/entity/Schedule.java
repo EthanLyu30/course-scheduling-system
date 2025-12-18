@@ -63,4 +63,28 @@ public class Schedule {
     /** 教室名称（非数据库字段） */
     @TableField(exist = false)
     private String classroomName;
+
+    /** 课程名称（非数据库字段） */
+    @TableField(exist = false)
+    private String courseName;
+
+    /** 课程代码（非数据库字段） */
+    @TableField(exist = false)
+    private String courseCode;
+
+    /** 学分（非数据库字段） */
+    @TableField(exist = false)
+    private Double credits;
+
+    /** 课程类型（非数据库字段） */
+    @TableField(exist = false)
+    private Integer courseType;
+
+    /** 教师姓名（非数据库字段） */
+    @TableField(exist = false)
+    private String teacherName;
+
+    /** 教学楼名称（非数据库字段） */
+    @TableField(exist = false)
+    private String building;
 }

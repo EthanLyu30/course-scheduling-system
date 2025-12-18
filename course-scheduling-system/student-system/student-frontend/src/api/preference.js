@@ -5,40 +5,21 @@ import request from './request'
  */
 export function getPreference(studentId) {
   return request({
-    url: `/preferences/${studentId}`,
-    method: 'get'
-  })
-}
-
-/**
- * 获取时间段列表
- */
-export function getTimeSlots(studentId) {
-  return request({
-    url: `/preferences/${studentId}/slots`,
-    method: 'get'
+    url: '/preferences/current',
+    method: 'get',
+    params: { studentId }
   })
 }
 
 /**
  * 保存时间偏好
  */
-export function savePreference(data) {
+export function savePreference(studentId, data) {
   return request({
     url: '/preferences',
     method: 'post',
+    params: { studentId },
     data
-  })
-}
-
-/**
- * 批量保存时间段
- */
-export function saveTimeSlots(studentId, slots) {
-  return request({
-    url: `/preferences/${studentId}/slots/batch`,
-    method: 'post',
-    data: slots
   })
 }
 

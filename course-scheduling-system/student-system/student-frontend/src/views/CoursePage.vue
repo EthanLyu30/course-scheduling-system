@@ -72,10 +72,9 @@ async function addWish(course) {
   const payload = {
     studentId,
     courseId: course.id,
-    courseName: course.name,
-    teacherId: course.teacherId,
-    teacherName: course.teacherName,
-    priority: wishStore.wishCount + 1
+    semester: '2024-2025-2',
+    priority: wishStore.wishCount + 1,
+    reason: ''
   }
   const ok = await wishStore.addNewWish(payload)
   if (ok) ElMessage.success('已加入意愿')

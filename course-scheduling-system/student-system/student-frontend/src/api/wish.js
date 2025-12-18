@@ -5,18 +5,20 @@ import request from './request'
  */
 export function getWishList(studentId) {
   return request({
-    url: `/wishes/${studentId}`,
-    method: 'get'
+    url: '/wishes',
+    method: 'get',
+    params: { studentId }
   })
 }
 
 /**
  * 添加意愿
  */
-export function addWish(data) {
+export function addWish(studentId, data) {
   return request({
     url: '/wishes',
     method: 'post',
+    params: { studentId },
     data
   })
 }
@@ -24,22 +26,11 @@ export function addWish(data) {
 /**
  * 批量保存意愿（含排序）
  */
-export function batchSaveWishes(studentId, wishes) {
+export function updateWish(wishId, data) {
   return request({
-    url: `/wishes/${studentId}/batch`,
-    method: 'post',
-    data: wishes
-  })
-}
-
-/**
- * 更新意愿优先级
- */
-export function updateWishPriority(wishId, priority) {
-  return request({
-    url: `/wishes/${wishId}/priority`,
+    url: `/wishes/${wishId}`,
     method: 'put',
-    data: { priority }
+    data
   })
 }
 
@@ -50,17 +41,6 @@ export function deleteWish(wishId) {
   return request({
     url: `/wishes/${wishId}`,
     method: 'delete'
-  })
-}
-
-/**
- * 调整意愿顺序
- */
-export function reorderWishes(studentId, wishIds) {
-  return request({
-    url: `/wishes/${studentId}/reorder`,
-    method: 'post',
-    data: { wishIds }
   })
 }
 
