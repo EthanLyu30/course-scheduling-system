@@ -25,7 +25,7 @@ public class PreferenceController {
 
     @GetMapping("/{teacherId}")
     @Operation(summary = "获取教师偏好")
-    public Result<?> list(@PathVariable String teacherId) {
+    public Result<?> list(@PathVariable("teacherId") String teacherId) {
         return preferenceService.listPreferences(teacherId);
     }
 }

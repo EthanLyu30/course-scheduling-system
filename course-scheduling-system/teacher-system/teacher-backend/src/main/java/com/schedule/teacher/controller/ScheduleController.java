@@ -20,13 +20,13 @@ public class ScheduleController {
 
     @GetMapping("/{teacherId}")
     @Operation(summary = "获取教师课表")
-    public Result<List<ScheduleVO>> getSchedule(@PathVariable String teacherId) {
+    public Result<List<ScheduleVO>> getSchedule(@PathVariable("teacherId") String teacherId) {
         return scheduleService.getSchedule(teacherId);
     }
 
     @PostMapping("/{planId}/confirm")
     @Operation(summary = "教师确认方案")
-    public Result<Void> confirm(@PathVariable String planId) {
+    public Result<Void> confirm(@PathVariable("planId") String planId) {
         return scheduleService.confirm(planId);
     }
 }
